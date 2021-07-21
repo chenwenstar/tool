@@ -12,8 +12,8 @@ public class ReentrantLockRunnable implements Runnable {
     private static int state=0;
 
     public void run() {
+        reentrantlock.lock();
         try {
-            reentrantlock.lock();
             Thread.sleep(100);
             System.out.println("当前线程:" + Thread.currentThread() + ":" + state++);
         } catch (Exception e) {
