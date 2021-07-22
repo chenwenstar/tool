@@ -28,7 +28,13 @@ public class DynamicProxy implements InvocationHandler {
     public static void main(String[] args) {
         DynamicProxy dynamicProxy = new DynamicProxy();
         dynamicProxy.setTarget(new HelloImpl());
-        Hello o = (Hello)Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), HelloImpl.class.getInterfaces(), dynamicProxy);
+        Hello o = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), HelloImpl.class.getInterfaces(), dynamicProxy);
+        Hello o1 = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), HelloImpl.class.getInterfaces(), dynamicProxy);
+        System.out.println(o.getClass().getName());
+        System.out.println(o.getClass() == o1.getClass());
+        for(Method method:o.getClass().getDeclaredMethods()){
+            System.out.println(method);
+        }
         o.sayHello();
     }
 }
