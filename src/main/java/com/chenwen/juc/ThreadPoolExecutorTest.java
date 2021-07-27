@@ -1,6 +1,7 @@
 package com.chenwen.juc;
 
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -13,7 +14,12 @@ public class ThreadPoolExecutorTest {
 
     public static void main(String[] args) {
 
-        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5, 10, 5, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100000));
+        ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(5, 10, 5, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(100000), new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "thread" + r.hashCode());
+            }
+        });
         for (int i = 0; i < TOTAL; i++) {
             threadPoolExecutor.execute(new AqsRunnable());
         }
