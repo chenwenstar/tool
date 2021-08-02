@@ -28,16 +28,22 @@ public class ConnectionManager {
     }
 
     private void connectionIsLiveMonitor() {
-        new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    TimeUnit.MILLISECONDS.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                while (true) {
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("后台运行检测");
                 }
-
             }
-        };
+        });
+        thread.setName("poll monitor");
+        thread.start();
     }
+
+
 }
