@@ -1,5 +1,6 @@
 package com.chenwen.pool.connection;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 
@@ -8,23 +9,32 @@ import java.util.concurrent.TimeUnit;
  * @date 2021/7/27 15:23
  */
 public class ConnectionManager {
-    private static ConnectionPool pool;
+    private ConnectionPool pool;
 
     public ConnectionManager(DataSourceConfig config) {
-        if (null == pool) {
-            synchronized (this) {
-                if (null == pool) {
-                    try {
-                        pool = new ConnectionPool(config);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    connectionIsLiveMonitor();
-                }
-            }
+        try {
+            pool = new ConnectionPool(config);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+        connectionIsLiveMonitor();
+    }
+
+    public Connection getConn(){
+        try {
+            return pool.getConnection();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean close(Connection connection){
+        return pool.close(connection);
     }
 
     private void connectionIsLiveMonitor() {
@@ -44,6 +54,8 @@ public class ConnectionManager {
         thread.setName("poll monitor");
         thread.start();
     }
+
+
 
 
 }

@@ -12,7 +12,7 @@ public class DataSourceConfig {
     private String username;
     private String pwd;
     private String driverName;
-    private boolean ifAutoCommit;
+    private boolean isAutoCommit;
     private int minConnectionNum;
     private int maxConnectionNum;
     private long time;

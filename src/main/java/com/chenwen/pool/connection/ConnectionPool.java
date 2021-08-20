@@ -1,5 +1,6 @@
 package com.chenwen.pool.connection;
 
+import lombok.extern.slf4j.Slf4j;
 import sun.misc.Unsafe;
 
 import java.sql.Connection;
@@ -13,6 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author chen.jw
  * @date 2021/7/27 14:22
  */
+@Slf4j
 public class ConnectionPool {
     private static final int DEFAULT_MIN_CONNECTION_NUM = 2;
     private static final int DEFAULT_MAX_CONNECTION_NUM = 6;
@@ -26,7 +28,7 @@ public class ConnectionPool {
      **/
     public AtomicInteger status = new AtomicInteger();
 
-    public ConnectionPool(DataSourceConfig dataSourceConfig) throws SQLException, ClassNotFoundException {
+    public ConnectionPool(DataSourceConfig dataSourceConfig) throws SQLException, ClassNotFoundException, InterruptedException {
         this.dataSourceConfig = dataSourceConfig;
         connectionQueue = new ArrayBlockingQueue<>(dataSourceConfig.getMaxConnectionNum());
         init();
@@ -35,15 +37,17 @@ public class ConnectionPool {
     /**
      * 初始化连接
      */
-    private void init() throws ClassNotFoundException, SQLException {
+    private void init() throws ClassNotFoundException, SQLException, InterruptedException {
         //类加载
         Class.forName(dataSourceConfig.getDriverName());
         Connection connection;
         for (int i = 0; i < dataSourceConfig.getMinConnectionNum(); i++) {
             connection = DriverManager.getConnection(dataSourceConfig.getUrl(), dataSourceConfig.getUsername(), dataSourceConfig.getPwd());
-            connectionQueue.add(connection);
+            connection.setAutoCommit(dataSourceConfig.isAutoCommit());
+            connectionQueue.put(connection);
         }
-        status.compareAndSet(0,1);
+        log.info("create conn count:{}", dataSourceConfig.getMinConnectionNum());
+        status.compareAndSet(0, 1);
     }
 
     /**
@@ -56,12 +60,10 @@ public class ConnectionPool {
     }
 
     public Connection getConnection() throws InterruptedException {
-        synchronized (this) {
-            return connectionQueue.take();
-        }
+        return connectionQueue.take();
     }
 
-    public boolean close(Connection connection) {
+    public boolean close(Connection connection){
         return connectionQueue.add(connection);
     }
 }
