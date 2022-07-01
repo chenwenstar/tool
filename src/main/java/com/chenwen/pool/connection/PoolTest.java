@@ -37,6 +37,8 @@ public class PoolTest implements Runnable {
             PreparedStatement preparedStatement = conn.prepareStatement("insert into user (username) values(\"test\")");
             log.info(Thread.currentThread().getName());
             int i = preparedStatement.executeUpdate();
+            conn.setCatalog("test1");
+            conn.prepareStatement("insert into user (username) values(\"test\")");
             System.out.println(i);
             TimeUnit.SECONDS.sleep(5);
             connectionManager.close(conn);
@@ -51,7 +53,7 @@ public class PoolTest implements Runnable {
 
     public static void main(String[] args) {
         connectionManager = new ConnectionManager(dataSourceConfig);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             try {
                 TimeUnit.SECONDS.sleep(2);
             } catch (InterruptedException e) {
@@ -59,6 +61,7 @@ public class PoolTest implements Runnable {
             }
             new Thread(new PoolTest()).start();
         }
+        System.out.println(111);
     }
 
 

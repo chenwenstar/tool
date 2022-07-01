@@ -27,8 +27,12 @@ public class JdbcTest {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
             Connection connection = DriverManager.getConnection(URL, USERNAME, PWD);
+            connection.setAutoCommit(true);
             PreparedStatement preparedStatement = connection.prepareStatement(sql);
             preparedStatement.executeUpdate();
+            connection.setCatalog("test1");
+            PreparedStatement preparedStatement1 = connection.prepareStatement(sql);
+            preparedStatement1.execute();
             stopWatch.stop();
             System.out.println(stopWatch.getTime());
         } catch (SQLException throwables) {
